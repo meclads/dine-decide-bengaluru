@@ -1,185 +1,201 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
-import { Swords, Sparkles } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
-import { restaurants, type Restaurant } from "@/data/restaurants";
-import { RestaurantPicker } from "@/components/dineduel/RestaurantPicker";
-import { ComparisonCard } from "@/components/dineduel/ComparisonCard";
-import { SentimentRadar } from "@/components/dineduel/SentimentRadar";
-import { FilterSidebar } from "@/components/dineduel/FilterSidebar";
-import { HotInBengaluru } from "@/components/dineduel/HotInBengaluru";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { Swords, Sparkles, ArrowRight, Star, MapPin, Flame, TrendingUp } from "lucide-react";
+import { motion } from "framer-motion";
+import { restaurants, LOCATIONS } from "@/data/restaurants";
+import { slugify } from "@/lib/slug";
 
 export const Route = createFileRoute("/")({
-  component: Index,
+  head: () => ({
+    meta: [
+      { title: "DineDuel — Bengaluru's Premium Restaurant Showdown" },
+      { name: "description", content: "Compare Bengaluru's best restaurants side-by-side. Sentiment radar, Hinglish buzzwords, ratings & price duels — pick the winner in 3 seconds." },
+      { property: "og:title", content: "DineDuel — Bengaluru's Premium Restaurant Showdown" },
+      { property: "og:description", content: "The premium concierge for Bengaluru foodies." },
+    ],
+  }),
+  component: HomePage,
 });
 
-function scoreBreakdown(r: Restaurant) {
-  const sentAvg =
-    (r.sentiment.food + r.sentiment.service + r.sentiment.ambiance + r.sentiment.value + r.sentiment.hygiene) / 5;
-  // Rating 50%, Sentiment 35%, Popularity 15%. Cost is informational, not scored.
-  const rating = (r.rate / 5) * 50;
-  const sentiment = (sentAvg / 100) * 35;
-  const popularity = Math.min(1, r.votes / 25000) * 15;
-  return { rating, sentiment, popularity, total: rating + sentiment + popularity };
-}
-
-function score(r: Restaurant) {
-  return scoreBreakdown(r).total;
-}
-
-function Index() {
-  const [a, setA] = useState<Restaurant>(restaurants[0]);
-  const [b, setB] = useState<Restaurant>(restaurants[1]);
-  const [activeLocation, setActiveLocation] = useState<string | null>(null);
-  const [priceMax, setPriceMax] = useState(2500);
-
-  const filtered = useMemo(
-    () =>
-      restaurants.filter(
-        (r) => (!activeLocation || r.location === activeLocation) && r.avg_cost <= priceMax,
-      ),
-    [activeLocation, priceMax],
-  );
-
-  const ba = scoreBreakdown(a);
-  const bb = scoreBreakdown(b);
-  const sa = ba.total;
-  const sb = bb.total;
-  const winner = Math.abs(sa - sb) < 0.05 ? null : sa > sb ? a.id : b.id;
-  const winnerName = winner === a.id ? a.name : winner === b.id ? b.name : null;
-  const margin = Math.abs(sa - sb).toFixed(1);
-  const verdict = winnerName
-    ? `${winnerName} wins by ${margin} pts (${sa.toFixed(1)} vs ${sb.toFixed(1)})`
-    : `It's a tie at ${sa.toFixed(1)} pts!`;
+function HomePage() {
+  const featured = [...restaurants].sort((a, b) => b.rate - a.rate).slice(0, 3);
+  const heroDuel = [restaurants.find((r) => r.id === "truffles")!, restaurants.find((r) => r.id === "glens")!];
 
   return (
-    <div className="min-h-screen">
+    <div>
       {/* Hero */}
-      <header className="relative overflow-hidden">
-        <div className="container mx-auto max-w-7xl px-4 sm:px-6 pt-10 pb-8">
-          <div className="flex items-center justify-between mb-8">
-            <div className="flex items-center gap-2">
-              <div className="relative">
-                <Swords className="h-6 w-6 text-primary" />
-                <div className="absolute inset-0 blur-lg bg-primary/40 -z-10" />
-              </div>
-              <span className="font-bold text-lg tracking-tight">DineDuel</span>
-              <span className="text-xs text-muted-foreground hidden sm:inline">· Bengaluru</span>
+      <section className="relative overflow-hidden">
+        <div className="container mx-auto max-w-7xl px-4 sm:px-6 pt-16 pb-20">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="max-w-4xl"
+          >
+            <div className="inline-flex items-center gap-1.5 glass rounded-full px-3 py-1.5 text-xs text-muted-foreground mb-6">
+              <Sparkles className="h-3 w-3 text-primary" /> Premium Concierge · Bengaluru
             </div>
-            <div className="hidden sm:flex items-center gap-1 text-xs text-muted-foreground glass rounded-full px-3 py-1.5">
-              <Sparkles className="h-3 w-3 text-primary" />
-              Premium Concierge
-            </div>
-          </div>
-
-          <div className="max-w-3xl">
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.05]">
+            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold leading-[1.02]">
               Two restaurants enter.
               <br />
               <span className="text-gradient">One Bengaluru favourite wins.</span>
             </h1>
-            <p className="mt-4 text-base sm:text-lg text-muted-foreground max-w-2xl">
+            <p className="mt-6 text-lg text-muted-foreground max-w-2xl">
               Side-by-side duels across price, ratings, sentiment & Hinglish buzz —
               from Indiranagar's bakehouses to MG Road's biryani legends.
             </p>
-          </div>
-        </div>
-      </header>
-
-      <main className="container mx-auto max-w-7xl px-4 sm:px-6 pb-16">
-        <div className="grid lg:grid-cols-[260px_1fr] gap-6">
-          <FilterSidebar
-            activeLocation={activeLocation}
-            onLocation={setActiveLocation}
-            priceMax={priceMax}
-            onPriceMax={setPriceMax}
-          />
-
-          <div className="space-y-6 min-w-0">
-            {/* Pickers + verdict bento */}
-            <section className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-4 items-center">
-              <RestaurantPicker
-                selected={a}
-                onChange={setA}
-                excludeId={b.id}
-                side="left"
-              />
-              <div className="text-center">
-                <div
-                  className="mx-auto h-12 w-12 rounded-full flex items-center justify-center text-xl font-black shadow-glow"
-                  style={{ background: "var(--gradient-hero)" }}
-                >
-                  VS
-                </div>
-              </div>
-              <RestaurantPicker
-                selected={b}
-                onChange={setB}
-                excludeId={a.id}
-                side="right"
-              />
-            </section>
-
-            {/* Verdict bar */}
-            <div
-              className="glass-strong rounded-2xl px-5 py-3 flex items-center justify-between flex-wrap gap-3"
-              style={{ borderColor: "color-mix(in oklch, var(--color-primary) 35%, transparent)" }}
-            >
-              <div className="flex items-center gap-2">
-                <Sparkles className="h-4 w-4 text-primary" />
-                <span className="text-sm">
-                  <span className="text-muted-foreground">Concierge verdict:</span>{" "}
-                  <span className="font-semibold">{verdict}</span>
-                </span>
-              </div>
-              <div className="text-xs text-muted-foreground">
-                Filtered pool: <span className="text-foreground font-semibold">{filtered.length}</span> restaurants
-              </div>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Link
+                to="/duel"
+                className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-bold text-background shadow-glow transition-transform hover:scale-105"
+                style={{ background: "var(--gradient-hero)" }}
+              >
+                <Swords className="h-4 w-4" /> Start a Duel
+              </Link>
+              <Link
+                to="/explore"
+                className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-medium border border-border hover:bg-muted/40 transition-colors"
+              >
+                Browse all restaurants <ArrowRight className="h-4 w-4" />
+              </Link>
             </div>
+          </motion.div>
 
-            {/* Bento grid */}
-            <section className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-              <AnimatePresence mode="popLayout">
-                <motion.div
-                  key={a.id}
-                  initial={{ opacity: 0, x: -40, scale: 0.96 }}
-                  animate={{ opacity: 1, x: 0, scale: 1 }}
-                  exit={{ opacity: 0, x: -20, scale: 0.97 }}
-                  transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-                >
-                  <ComparisonCard r={a} rival={b} side="left" winner={winner === a.id} />
-                </motion.div>
-                <motion.div
-                  key={b.id}
-                  initial={{ opacity: 0, x: 40, scale: 0.96 }}
-                  animate={{ opacity: 1, x: 0, scale: 1 }}
-                  exit={{ opacity: 0, x: 20, scale: 0.97 }}
-                  transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1], delay: 0.05 }}
-                >
-                  <ComparisonCard r={b} rival={a} side="right" winner={winner === b.id} />
-                </motion.div>
-              </AnimatePresence>
-            </section>
-
-            {/* Sentiment radar — full width */}
-            <section className="glass rounded-3xl p-6 lg:p-8">
-              <div className="flex items-baseline justify-between flex-wrap gap-2 mb-2">
-                <h2 className="text-xl font-bold">Sentiment Radar</h2>
-                <p className="text-xs text-muted-foreground">
-                  Five-axis comparison · larger area = happier diners
-                </p>
+          {/* Hero duel preview */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.2 }}
+            className="mt-16 grid md:grid-cols-[1fr_auto_1fr] gap-4 items-center max-w-4xl mx-auto"
+          >
+            {heroDuel.map((r, i) => (
+              <Link
+                key={r.id}
+                to="/restaurant/$id"
+                params={{ id: r.id }}
+                className={`glass-strong rounded-3xl p-6 hover:-translate-y-1 transition-all ${i === 1 ? "md:order-3" : ""}`}
+              >
+                <div className="text-5xl mb-3">{r.emoji}</div>
+                <div className="text-xl font-bold">{r.name}</div>
+                <div className="text-xs text-muted-foreground">{r.location}</div>
+                <div className="flex items-center gap-1 text-sm font-bold text-primary mt-3">
+                  <Star className="h-3.5 w-3.5 fill-current" />{r.rate}
+                  <span className="text-muted-foreground font-normal ml-2">· ₹{r.avg_cost} for two</span>
+                </div>
+              </Link>
+            ))}
+            <div className="text-center md:order-2 py-4">
+              <div
+                className="mx-auto h-14 w-14 rounded-full flex items-center justify-center text-lg font-black shadow-glow animate-float"
+                style={{ background: "var(--gradient-hero)", color: "var(--color-primary-foreground)" }}
+              >
+                VS
               </div>
-              <SentimentRadar a={a} b={b} />
-            </section>
-
-            <HotInBengaluru />
-
-            <footer className="text-center text-xs text-muted-foreground pt-6">
-              DineDuel | Deep Insights powered by NLP Sentiment Analysis on Zomato Bengaluru Dataset.
-            </footer>
-          </div>
+              <Link to="/duel" className="text-xs text-primary mt-3 inline-block hover:underline">
+                Open in arena →
+              </Link>
+            </div>
+          </motion.div>
         </div>
-      </main>
+      </section>
+
+      {/* Featured */}
+      <section className="container mx-auto max-w-7xl px-4 sm:px-6 py-12">
+        <div className="flex items-baseline justify-between flex-wrap gap-2 mb-6">
+          <div>
+            <div className="flex items-center gap-2 text-secondary text-xs uppercase tracking-widest font-semibold">
+              <Flame className="h-4 w-4" /> Featured
+            </div>
+            <h2 className="text-3xl font-bold mt-1">Top-rated this week</h2>
+          </div>
+          <Link to="/trending" className="text-sm text-primary hover:underline inline-flex items-center gap-1">
+            See trending <ArrowRight className="h-3 w-3" />
+          </Link>
+        </div>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {featured.map((r, i) => (
+            <motion.div
+              key={r.id}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4, delay: i * 0.1 }}
+            >
+              <Link
+                to="/restaurant/$id"
+                params={{ id: r.id }}
+                className="glass-strong rounded-3xl p-6 block hover:-translate-y-1 hover:shadow-glow transition-all h-full"
+              >
+                <div className="flex items-start justify-between mb-3">
+                  <div className="text-5xl">{r.emoji}</div>
+                  <div className="rounded-full px-2.5 py-1 bg-primary/15 text-primary text-xs font-bold flex items-center gap-1">
+                    <Star className="h-3 w-3 fill-current" />{r.rate}
+                  </div>
+                </div>
+                <div className="text-xl font-bold">{r.name}</div>
+                <div className="text-xs text-muted-foreground mt-1">{r.cuisines.slice(0, 3).join(" · ")}</div>
+                <div className="flex items-center justify-between text-xs text-muted-foreground mt-4">
+                  <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{r.location}</span>
+                  <span className="flex items-center gap-1"><TrendingUp className="h-3 w-3" />{(r.votes/1000).toFixed(1)}k votes</span>
+                </div>
+              </Link>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* Localities */}
+      <section className="container mx-auto max-w-7xl px-4 sm:px-6 py-12">
+        <div className="flex items-baseline justify-between flex-wrap gap-2 mb-6">
+          <div>
+            <div className="flex items-center gap-2 text-accent text-xs uppercase tracking-widest font-semibold">
+              <MapPin className="h-4 w-4" /> Neighbourhoods
+            </div>
+            <h2 className="text-3xl font-bold mt-1">Pick a Bengaluru hood</h2>
+          </div>
+          <Link to="/localities" className="text-sm text-primary hover:underline inline-flex items-center gap-1">
+            All localities <ArrowRight className="h-3 w-3" />
+          </Link>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+          {LOCATIONS.map((loc) => {
+            const count = restaurants.filter((r) => r.location === loc).length;
+            return (
+              <Link
+                key={loc}
+                to="/localities/$slug"
+                params={{ slug: slugify(loc) }}
+                className="glass rounded-2xl p-5 hover:-translate-y-1 hover:shadow-glow hover:border-primary/40 transition-all"
+              >
+                <div className="font-bold">{loc}</div>
+                <div className="text-xs text-muted-foreground mt-1">{count} restaurants</div>
+              </Link>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="container mx-auto max-w-7xl px-4 sm:px-6 py-16">
+        <div
+          className="glass-strong rounded-3xl p-10 lg:p-14 text-center"
+          style={{ background: "var(--gradient-mesh)" }}
+        >
+          <Swords className="h-10 w-10 text-primary mx-auto mb-4" />
+          <h2 className="text-3xl sm:text-4xl font-bold max-w-2xl mx-auto leading-tight">
+            Can't decide between two spots?
+          </h2>
+          <p className="mt-3 text-muted-foreground max-w-xl mx-auto">
+            Drop them in the arena. Our concierge picks a winner in under 3 seconds.
+          </p>
+          <Link
+            to="/duel"
+            className="mt-6 inline-flex items-center gap-2 rounded-full px-7 py-3 text-sm font-bold text-background shadow-glow"
+            style={{ background: "var(--gradient-hero)" }}
+          >
+            <Swords className="h-4 w-4" /> Start a Duel
+          </Link>
+        </div>
+      </section>
     </div>
   );
 }

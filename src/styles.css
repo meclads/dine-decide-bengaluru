@@ -194,4 +194,9 @@
     background-size: 200% 100%;
     animation: shimmer 2s linear infinite;
   }
+  @keyframes pulse-winner {
+    0%, 100% { box-shadow: 0 0 0 1px oklch(0.85 0.17 85 / 0.6), 0 0 40px -5px oklch(0.85 0.17 85 / 0.55), 0 0 80px -20px oklch(0.85 0.17 85 / 0.4); }
+    50% { box-shadow: 0 0 0 1px oklch(0.85 0.17 85 / 0.8), 0 0 55px -2px oklch(0.85 0.17 85 / 0.7), 0 0 100px -15px oklch(0.85 0.17 85 / 0.5); }
+  }
+  .animate-pulse-winner { animation: pulse-winner 2.6s ease-in-out infinite; }
 }

@@ -25,6 +25,12 @@ export const LOCATIONS = [
   "MG Road",
   "Whitefield",
   "Brigade Road",
+  "JP Nagar",
+  "Marathahalli",
+  "Malleshwaram",
+  "Electronic City",
+  "Bellandur",
+  "Basavanagudi",
 ] as const;
 
 export const restaurants: Restaurant[] = [

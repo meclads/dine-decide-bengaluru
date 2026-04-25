@@ -1,7 +1,7 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { ArrowLeft, MapPin, Star, IndianRupee } from "lucide-react";
 import { motion } from "framer-motion";
-import { restaurants, LOCATIONS } from "@/data/restaurants";
+import { restaurants, LOCATIONS, type Restaurant } from "@/data/restaurants";
 import { slugify } from "@/lib/slug";
 
 export const Route = createFileRoute("/localities/$slug")({
@@ -54,7 +54,7 @@ function LocalityPage() {
       <p className="text-muted-foreground mt-3">{items.length} restaurants ranked by rating.</p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-8">
-        {items.map((r, i) => (
+        {items.map((r: Restaurant, i: number) => (
           <motion.div
             key={r.id}
             initial={{ opacity: 0, y: 16 }}

@@ -9,38 +9,147 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TrendingRouteImport } from './routes/trending'
+import { Route as LocalitiesRouteImport } from './routes/localities'
+import { Route as ExploreRouteImport } from './routes/explore'
+import { Route as DuelRouteImport } from './routes/duel'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as RestaurantIdRouteImport } from './routes/restaurant.$id'
+import { Route as LocalitiesSlugRouteImport } from './routes/localities.$slug'
 
+const TrendingRoute = TrendingRouteImport.update({
+  id: '/trending',
+  path: '/trending',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LocalitiesRoute = LocalitiesRouteImport.update({
+  id: '/localities',
+  path: '/localities',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExploreRoute = ExploreRouteImport.update({
+  id: '/explore',
+  path: '/explore',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DuelRoute = DuelRouteImport.update({
+  id: '/duel',
+  path: '/duel',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RestaurantIdRoute = RestaurantIdRouteImport.update({
+  id: '/restaurant/$id',
+  path: '/restaurant/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LocalitiesSlugRoute = LocalitiesSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => LocalitiesRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/duel': typeof DuelRoute
+  '/explore': typeof ExploreRoute
+  '/localities': typeof LocalitiesRouteWithChildren
+  '/trending': typeof TrendingRoute
+  '/localities/$slug': typeof LocalitiesSlugRoute
+  '/restaurant/$id': typeof RestaurantIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/duel': typeof DuelRoute
+  '/explore': typeof ExploreRoute
+  '/localities': typeof LocalitiesRouteWithChildren
+  '/trending': typeof TrendingRoute
+  '/localities/$slug': typeof LocalitiesSlugRoute
+  '/restaurant/$id': typeof RestaurantIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/duel': typeof DuelRoute
+  '/explore': typeof ExploreRoute
+  '/localities': typeof LocalitiesRouteWithChildren
+  '/trending': typeof TrendingRoute
+  '/localities/$slug': typeof LocalitiesSlugRoute
+  '/restaurant/$id': typeof RestaurantIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/duel'
+    | '/explore'
+    | '/localities'
+    | '/trending'
+    | '/localities/$slug'
+    | '/restaurant/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/duel'
+    | '/explore'
+    | '/localities'
+    | '/trending'
+    | '/localities/$slug'
+    | '/restaurant/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/duel'
+    | '/explore'
+    | '/localities'
+    | '/trending'
+    | '/localities/$slug'
+    | '/restaurant/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DuelRoute: typeof DuelRoute
+  ExploreRoute: typeof ExploreRoute
+  LocalitiesRoute: typeof LocalitiesRouteWithChildren
+  TrendingRoute: typeof TrendingRoute
+  RestaurantIdRoute: typeof RestaurantIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/trending': {
+      id: '/trending'
+      path: '/trending'
+      fullPath: '/trending'
+      preLoaderRoute: typeof TrendingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/localities': {
+      id: '/localities'
+      path: '/localities'
+      fullPath: '/localities'
+      preLoaderRoute: typeof LocalitiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/explore': {
+      id: '/explore'
+      path: '/explore'
+      fullPath: '/explore'
+      preLoaderRoute: typeof ExploreRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/duel': {
+      id: '/duel'
+      path: '/duel'
+      fullPath: '/duel'
+      preLoaderRoute: typeof DuelRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,11 +157,42 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/restaurant/$id': {
+      id: '/restaurant/$id'
+      path: '/restaurant/$id'
+      fullPath: '/restaurant/$id'
+      preLoaderRoute: typeof RestaurantIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/localities/$slug': {
+      id: '/localities/$slug'
+      path: '/$slug'
+      fullPath: '/localities/$slug'
+      preLoaderRoute: typeof LocalitiesSlugRouteImport
+      parentRoute: typeof LocalitiesRoute
+    }
   }
 }
 
+interface LocalitiesRouteChildren {
+  LocalitiesSlugRoute: typeof LocalitiesSlugRoute
+}
+
+const LocalitiesRouteChildren: LocalitiesRouteChildren = {
+  LocalitiesSlugRoute: LocalitiesSlugRoute,
+}
+
+const LocalitiesRouteWithChildren = LocalitiesRoute._addFileChildren(
+  LocalitiesRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DuelRoute: DuelRoute,
+  ExploreRoute: ExploreRoute,
+  LocalitiesRoute: LocalitiesRouteWithChildren,
+  TrendingRoute: TrendingRoute,
+  RestaurantIdRoute: RestaurantIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

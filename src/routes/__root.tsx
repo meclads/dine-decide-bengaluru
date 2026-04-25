@@ -35,10 +35,14 @@ export const Route = createRootRoute({
       { name: "description", content: "Compare Bengaluru's best restaurants side-by-side. Sentiment radar, Hinglish buzzwords, ratings & price duels — pick the winner in 3 seconds." },
       { name: "author", content: "DineDuel" },
       { property: "og:title", content: "DineDuel — Bengaluru's Premium Restaurant Showdown" },
-      { property: "og:description", content: "Compare Bengaluru's best restaurants side-by-side with sentiment analytics and Hinglish buzzwords." },
+      { property: "og:description", content: "Compare Bengaluru's best restaurants side-by-side. Sentiment radar, Hinglish buzzwords, ratings & price duels — pick the winner in 3 seconds." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@DineDuel" },
+      { name: "twitter:title", content: "DineDuel — Bengaluru's Premium Restaurant Showdown" },
+      { name: "twitter:description", content: "Compare Bengaluru's best restaurants side-by-side. Sentiment radar, Hinglish buzzwords, ratings & price duels — pick the winner in 3 seconds." },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/abe9459a-9a18-4e67-b489-e52b0adf3317" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/abe9459a-9a18-4e67-b489-e52b0adf3317" },
     ],
     links: [
       {

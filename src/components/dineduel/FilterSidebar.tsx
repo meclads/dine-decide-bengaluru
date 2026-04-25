@@ -1,5 +1,6 @@
 import { LOCATIONS } from "@/data/restaurants";
-import { MapPin, Wallet } from "lucide-react";
+import { MapPin, Wallet, Search, X } from "lucide-react";
+import { useState, useMemo } from "react";
 
 type Props = {
   activeLocation: string | null;
@@ -9,12 +10,36 @@ type Props = {
 };
 
 export function FilterSidebar({ activeLocation, onLocation, priceMax, onPriceMax }: Props) {
+  const [query, setQuery] = useState("");
+  const filtered = useMemo(
+    () => LOCATIONS.filter((l) => l.toLowerCase().includes(query.trim().toLowerCase())),
+    [query],
+  );
   return (
     <aside className="glass rounded-3xl p-5 lg:p-6 space-y-6 lg:sticky lg:top-6 h-fit">
       <div>
         <div className="flex items-center gap-2 mb-3">
           <MapPin className="h-4 w-4 text-primary" />
           <h3 className="text-sm font-semibold uppercase tracking-widest">Locality</h3>
+        </div>
+        <div className="relative mb-3">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search locality…"
+            className="w-full text-xs rounded-full bg-muted/40 pl-8 pr-8 py-2 outline-none focus:ring-2 focus:ring-primary/40 placeholder:text-muted-foreground"
+          />
+          {query && (
+            <button
+              onClick={() => setQuery("")}
+              aria-label="Clear search"
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-muted text-muted-foreground"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
         </div>
         <div className="flex flex-wrap gap-2">
           <button
@@ -27,7 +52,7 @@ export function FilterSidebar({ activeLocation, onLocation, priceMax, onPriceMax
           >
             All
           </button>
-          {LOCATIONS.map((loc) => (
+          {filtered.map((loc) => (
             <button
               key={loc}
               onClick={() => onLocation(loc)}
@@ -40,6 +65,9 @@ export function FilterSidebar({ activeLocation, onLocation, priceMax, onPriceMax
               {loc}
             </button>
           ))}
+          {filtered.length === 0 && (
+            <span className="text-xs text-muted-foreground py-1.5">No matches</span>
+          )}
         </div>
       </div>
 

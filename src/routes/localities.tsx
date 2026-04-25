@@ -23,6 +23,12 @@ const LOCALITY_BLURBS: Record<string, string> = {
   "MG Road": "Heritage burgers, biryani & cocktail bars downtown.",
   "Whitefield": "Mall-side global cuisine for the IT corridor.",
   "Brigade Road": "Late-night biryani, pubs & shopping street eats.",
+  "JP Nagar": "Dessert cafes, Awadhi kebabs & quiet South Indian gems.",
+  "Marathahalli": "ORR buffets, biryanis & Thai joints for the IT crowd.",
+  "Malleshwaram": "Benne dosa, idli-vada & old Bengaluru tiffin temples.",
+  "Electronic City": "Hosur Rd Andhra meals, sundaes & late-night biryani.",
+  "Bellandur": "Sarjapur rooftop bars & regional South Indian fine dining.",
+  "Basavanagudi": "Filter coffee, Mysore Pak & Gandhi Bazaar tiffin legends.",
 };
 
 function LocalitiesPage() {

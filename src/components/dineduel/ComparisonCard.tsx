@@ -3,9 +3,11 @@ import type { Restaurant } from "@/data/restaurants";
 import { SatisfactionBar } from "./SatisfactionBar";
 import { BuzzCloud } from "./BuzzCloud";
 
-type Props = { r: Restaurant; rival: Restaurant; side: "left" | "right"; winner?: boolean };
+type Props = { r: Restaurant; rival?: Restaurant; side: "left" | "right"; winner?: boolean };
 
 export function ComparisonCard({ r, rival, side, winner }: Props) {
+  const diff = (key: keyof Restaurant["sentiment"]) =>
+    rival ? r.sentiment[key] - rival.sentiment[key] : undefined;
   const tint = side === "left" ? "primary" : "accent";
   const accent = side === "left" ? "var(--color-primary)" : "var(--color-accent)";
   const overall = Math.round(
@@ -91,10 +93,10 @@ export function ComparisonCard({ r, rival, side, winner }: Props) {
       </div>
 
       <div className="space-y-3">
-        <SatisfactionBar label="Food Quality" value={r.sentiment.food} tint={tint} diff={r.sentiment.food - rival.sentiment.food} />
-        <SatisfactionBar label="Service" value={r.sentiment.service} tint={tint} diff={r.sentiment.service - rival.sentiment.service} />
-        <SatisfactionBar label="Ambiance" value={r.sentiment.ambiance} tint={tint} diff={r.sentiment.ambiance - rival.sentiment.ambiance} />
-        <SatisfactionBar label="Value" value={r.sentiment.value} tint={tint} diff={r.sentiment.value - rival.sentiment.value} />
+        <SatisfactionBar label="Food Quality" value={r.sentiment.food} tint={tint} diff={diff("food")} />
+        <SatisfactionBar label="Service" value={r.sentiment.service} tint={tint} diff={diff("service")} />
+        <SatisfactionBar label="Ambiance" value={r.sentiment.ambiance} tint={tint} diff={diff("ambiance")} />
+        <SatisfactionBar label="Value" value={r.sentiment.value} tint={tint} diff={diff("value")} />
       </div>
 
       <div>

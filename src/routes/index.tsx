@@ -12,16 +12,18 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
-function score(r: Restaurant) {
+function scoreBreakdown(r: Restaurant) {
   const sentAvg =
     (r.sentiment.food + r.sentiment.service + r.sentiment.ambiance + r.sentiment.value + r.sentiment.hygiene) / 5;
-  // weighted: rating 40%, sentiment 35%, popularity 15%, value (inverse cost) 10%
-  return (
-    (r.rate / 5) * 40 +
-    (sentAvg / 100) * 35 +
-    Math.min(1, r.votes / 25000) * 15 +
-    (1 - Math.min(1, r.avg_cost / 2500)) * 10
-  );
+  // Rating 50%, Sentiment 35%, Popularity 15%. Cost is informational, not scored.
+  const rating = (r.rate / 5) * 50;
+  const sentiment = (sentAvg / 100) * 35;
+  const popularity = Math.min(1, r.votes / 25000) * 15;
+  return { rating, sentiment, popularity, total: rating + sentiment + popularity };
+}
+
+function score(r: Restaurant) {
+  return scoreBreakdown(r).total;
 }
 
 function Index() {
@@ -38,15 +40,16 @@ function Index() {
     [activeLocation, priceMax],
   );
 
-  const sa = score(a);
-  const sb = score(b);
-  const winner = sa === sb ? null : sa > sb ? a.id : b.id;
-  const verdict =
-    winner === a.id
-      ? `${a.name} edges out by ${(sa - sb).toFixed(1)} pts`
-      : winner === b.id
-      ? `${b.name} edges out by ${(sb - sa).toFixed(1)} pts`
-      : "It's a tie!";
+  const ba = scoreBreakdown(a);
+  const bb = scoreBreakdown(b);
+  const sa = ba.total;
+  const sb = bb.total;
+  const winner = Math.abs(sa - sb) < 0.05 ? null : sa > sb ? a.id : b.id;
+  const winnerName = winner === a.id ? a.name : winner === b.id ? b.name : null;
+  const margin = Math.abs(sa - sb).toFixed(1);
+  const verdict = winnerName
+    ? `${winnerName} wins by ${margin} pts (${sa.toFixed(1)} vs ${sb.toFixed(1)})`
+    : `It's a tie at ${sa.toFixed(1)} pts!`;
 
   return (
     <div className="min-h-screen">

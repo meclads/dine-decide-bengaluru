@@ -3,9 +3,9 @@ import type { Restaurant } from "@/data/restaurants";
 import { SatisfactionBar } from "./SatisfactionBar";
 import { BuzzCloud } from "./BuzzCloud";
 
-type Props = { r: Restaurant; side: "left" | "right"; winner?: boolean };
+type Props = { r: Restaurant; rival: Restaurant; side: "left" | "right"; winner?: boolean };
 
-export function ComparisonCard({ r, side, winner }: Props) {
+export function ComparisonCard({ r, rival, side, winner }: Props) {
   const tint = side === "left" ? "primary" : "accent";
   const accent = side === "left" ? "var(--color-primary)" : "var(--color-accent)";
   const overall = Math.round(
@@ -14,16 +14,42 @@ export function ComparisonCard({ r, side, winner }: Props) {
 
   return (
     <div
-      className="glass-strong relative rounded-3xl p-6 lg:p-7 space-y-5 transition-all hover:-translate-y-1 hover:shadow-glow"
-      style={{ borderColor: `color-mix(in oklch, ${accent} 40%, transparent)` }}
+      className={`glass-strong relative rounded-3xl p-6 lg:p-7 space-y-5 transition-all hover:-translate-y-1 hover:shadow-glow ${
+        winner ? "ring-2 ring-offset-0 animate-pulse-winner" : ""
+      }`}
+      style={{
+        borderColor: winner
+          ? "oklch(0.85 0.17 85)"
+          : `color-mix(in oklch, ${accent} 40%, transparent)`,
+        boxShadow: winner
+          ? "0 0 0 1px oklch(0.85 0.17 85 / 0.6), 0 0 40px -5px oklch(0.85 0.17 85 / 0.55), 0 0 80px -20px oklch(0.85 0.17 85 / 0.4)"
+          : undefined,
+        ["--tw-ring-color" as string]: winner ? "oklch(0.85 0.17 85 / 0.55)" : undefined,
+      }}
     >
       {winner && (
-        <div
-          className="absolute -top-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 rounded-full px-4 py-1 text-xs font-bold text-primary-foreground shadow-glow whitespace-nowrap"
-          style={{ background: "var(--gradient-hero)" }}
-        >
-          <Trophy className="h-3.5 w-3.5" /> WINNER
-        </div>
+        <>
+          {/* Corner sash */}
+          <div className="absolute top-0 right-0 h-24 w-24 overflow-hidden rounded-tr-3xl pointer-events-none">
+            <div
+              className="absolute top-5 -right-9 rotate-45 px-10 py-1 text-[10px] font-black tracking-widest text-background shadow-lg"
+              style={{
+                background: "linear-gradient(135deg, oklch(0.88 0.17 85), oklch(0.78 0.17 55))",
+              }}
+            >
+              WINNER
+            </div>
+          </div>
+          <div
+            className="absolute -top-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 rounded-full px-4 py-1 text-xs font-bold text-background whitespace-nowrap"
+            style={{
+              background: "linear-gradient(135deg, oklch(0.88 0.17 85), oklch(0.78 0.17 55))",
+              boxShadow: "0 6px 24px -6px oklch(0.85 0.17 85 / 0.7)",
+            }}
+          >
+            <Trophy className="h-3.5 w-3.5" /> CHAMPION
+          </div>
+        </>
       )}
 
       <div className="flex items-start justify-between gap-3">
@@ -65,10 +91,10 @@ export function ComparisonCard({ r, side, winner }: Props) {
       </div>
 
       <div className="space-y-3">
-        <SatisfactionBar label="Food Quality" value={r.sentiment.food} tint={tint} />
-        <SatisfactionBar label="Service" value={r.sentiment.service} tint={tint} />
-        <SatisfactionBar label="Ambiance" value={r.sentiment.ambiance} tint={tint} />
-        <SatisfactionBar label="Value" value={r.sentiment.value} tint={tint} />
+        <SatisfactionBar label="Food Quality" value={r.sentiment.food} tint={tint} diff={r.sentiment.food - rival.sentiment.food} />
+        <SatisfactionBar label="Service" value={r.sentiment.service} tint={tint} diff={r.sentiment.service - rival.sentiment.service} />
+        <SatisfactionBar label="Ambiance" value={r.sentiment.ambiance} tint={tint} diff={r.sentiment.ambiance - rival.sentiment.ambiance} />
+        <SatisfactionBar label="Value" value={r.sentiment.value} tint={tint} diff={r.sentiment.value - rival.sentiment.value} />
       </div>
 
       <div>

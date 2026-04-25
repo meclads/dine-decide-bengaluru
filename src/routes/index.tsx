@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { Swords, Sparkles } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { restaurants, type Restaurant } from "@/data/restaurants";
 import { RestaurantPicker } from "@/components/dineduel/RestaurantPicker";
 import { ComparisonCard } from "@/components/dineduel/ComparisonCard";
@@ -138,8 +139,26 @@ function Index() {
 
             {/* Bento grid */}
             <section className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-              <ComparisonCard r={a} side="left" winner={winner === a.id} />
-              <ComparisonCard r={b} side="right" winner={winner === b.id} />
+              <AnimatePresence mode="popLayout">
+                <motion.div
+                  key={a.id}
+                  initial={{ opacity: 0, x: -40, scale: 0.96 }}
+                  animate={{ opacity: 1, x: 0, scale: 1 }}
+                  exit={{ opacity: 0, x: -20, scale: 0.97 }}
+                  transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  <ComparisonCard r={a} rival={b} side="left" winner={winner === a.id} />
+                </motion.div>
+                <motion.div
+                  key={b.id}
+                  initial={{ opacity: 0, x: 40, scale: 0.96 }}
+                  animate={{ opacity: 1, x: 0, scale: 1 }}
+                  exit={{ opacity: 0, x: 20, scale: 0.97 }}
+                  transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1], delay: 0.05 }}
+                >
+                  <ComparisonCard r={b} rival={a} side="right" winner={winner === b.id} />
+                </motion.div>
+              </AnimatePresence>
             </section>
 
             {/* Sentiment radar — full width */}
@@ -156,7 +175,7 @@ function Index() {
             <HotInBengaluru />
 
             <footer className="text-center text-xs text-muted-foreground pt-6">
-              DineDuel · Curated for Bengaluru foodies · Data styled after Zomato Bangalore Restaurants
+              DineDuel | Deep Insights powered by NLP Sentiment Analysis on Zomato Bengaluru Dataset.
             </footer>
           </div>
         </div>

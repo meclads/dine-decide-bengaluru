@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Swords, Menu, X, User as UserIcon, LogOut, Heart } from "lucide-react";
+import { Swords, Menu, X, User as UserIcon, LogOut, Heart, Bookmark } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -80,6 +80,13 @@ export function SiteHeader() {
                     >
                       <Heart className="h-4 w-4" /> My Duels
                     </Link>
+                    <Link
+                      to="/favorites"
+                      onClick={() => setMenuOpen(false)}
+                      className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg hover:bg-muted/40"
+                    >
+                      <Bookmark className="h-4 w-4" /> Favorites
+                    </Link>
                     <button
                       onClick={signOut}
                       className="w-full flex items-center gap-2 px-3 py-2 text-sm rounded-lg hover:bg-muted/40 text-left"
@@ -134,6 +141,7 @@ export function SiteHeader() {
               {user ? (
                 <>
                   <Link to="/my-duels" onClick={() => setOpen(false)} className="px-3 py-2 rounded-lg text-sm font-medium text-muted-foreground">My Duels</Link>
+                  <Link to="/favorites" onClick={() => setOpen(false)} className="px-3 py-2 rounded-lg text-sm font-medium text-muted-foreground">Favorites</Link>
                   <button onClick={signOut} className="text-left px-3 py-2 rounded-lg text-sm font-medium text-muted-foreground">Sign out</button>
                 </>
               ) : (

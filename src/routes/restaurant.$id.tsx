@@ -3,6 +3,7 @@ import { ArrowLeft, Star, MapPin, IndianRupee, Users, Swords, Trophy } from "luc
 import { restaurants } from "@/data/restaurants";
 import { SatisfactionBar } from "@/components/dineduel/SatisfactionBar";
 import { BuzzCloud } from "@/components/dineduel/BuzzCloud";
+import { FavoriteButton } from "@/components/dineduel/FavoriteButton";
 
 export const Route = createFileRoute("/restaurant/$id")({
   loader: ({ params }) => {
@@ -118,6 +119,7 @@ function RestaurantPage() {
           >
             <Swords className="h-4 w-4" /> Duel this restaurant
           </Link>
+          <FavoriteButton restaurantId={r.id} variant="pill" />
           <Link to="/explore" className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium border border-border hover:bg-muted/40">
             More restaurants
           </Link>

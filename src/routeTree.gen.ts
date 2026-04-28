@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TrendingRouteImport } from './routes/trending'
+import { Route as MyDuelsRouteImport } from './routes/my-duels'
 import { Route as LocalitiesRouteImport } from './routes/localities'
 import { Route as ExploreRouteImport } from './routes/explore'
 import { Route as DuelRouteImport } from './routes/duel'
@@ -21,6 +22,11 @@ import { Route as LocalitiesSlugRouteImport } from './routes/localities.$slug'
 const TrendingRoute = TrendingRouteImport.update({
   id: '/trending',
   path: '/trending',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MyDuelsRoute = MyDuelsRouteImport.update({
+  id: '/my-duels',
+  path: '/my-duels',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LocalitiesRoute = LocalitiesRouteImport.update({
@@ -65,6 +71,7 @@ export interface FileRoutesByFullPath {
   '/duel': typeof DuelRoute
   '/explore': typeof ExploreRoute
   '/localities': typeof LocalitiesRouteWithChildren
+  '/my-duels': typeof MyDuelsRoute
   '/trending': typeof TrendingRoute
   '/localities/$slug': typeof LocalitiesSlugRoute
   '/restaurant/$id': typeof RestaurantIdRoute
@@ -75,6 +82,7 @@ export interface FileRoutesByTo {
   '/duel': typeof DuelRoute
   '/explore': typeof ExploreRoute
   '/localities': typeof LocalitiesRouteWithChildren
+  '/my-duels': typeof MyDuelsRoute
   '/trending': typeof TrendingRoute
   '/localities/$slug': typeof LocalitiesSlugRoute
   '/restaurant/$id': typeof RestaurantIdRoute
@@ -86,6 +94,7 @@ export interface FileRoutesById {
   '/duel': typeof DuelRoute
   '/explore': typeof ExploreRoute
   '/localities': typeof LocalitiesRouteWithChildren
+  '/my-duels': typeof MyDuelsRoute
   '/trending': typeof TrendingRoute
   '/localities/$slug': typeof LocalitiesSlugRoute
   '/restaurant/$id': typeof RestaurantIdRoute
@@ -98,6 +107,7 @@ export interface FileRouteTypes {
     | '/duel'
     | '/explore'
     | '/localities'
+    | '/my-duels'
     | '/trending'
     | '/localities/$slug'
     | '/restaurant/$id'
@@ -108,6 +118,7 @@ export interface FileRouteTypes {
     | '/duel'
     | '/explore'
     | '/localities'
+    | '/my-duels'
     | '/trending'
     | '/localities/$slug'
     | '/restaurant/$id'
@@ -118,6 +129,7 @@ export interface FileRouteTypes {
     | '/duel'
     | '/explore'
     | '/localities'
+    | '/my-duels'
     | '/trending'
     | '/localities/$slug'
     | '/restaurant/$id'
@@ -129,6 +141,7 @@ export interface RootRouteChildren {
   DuelRoute: typeof DuelRoute
   ExploreRoute: typeof ExploreRoute
   LocalitiesRoute: typeof LocalitiesRouteWithChildren
+  MyDuelsRoute: typeof MyDuelsRoute
   TrendingRoute: typeof TrendingRoute
   RestaurantIdRoute: typeof RestaurantIdRoute
 }
@@ -140,6 +153,13 @@ declare module '@tanstack/react-router' {
       path: '/trending'
       fullPath: '/trending'
       preLoaderRoute: typeof TrendingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/my-duels': {
+      id: '/my-duels'
+      path: '/my-duels'
+      fullPath: '/my-duels'
+      preLoaderRoute: typeof MyDuelsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/localities': {
@@ -212,6 +232,7 @@ const rootRouteChildren: RootRouteChildren = {
   DuelRoute: DuelRoute,
   ExploreRoute: ExploreRoute,
   LocalitiesRoute: LocalitiesRouteWithChildren,
+  MyDuelsRoute: MyDuelsRoute,
   TrendingRoute: TrendingRoute,
   RestaurantIdRoute: RestaurantIdRoute,
 }

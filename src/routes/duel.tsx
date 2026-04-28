@@ -1,12 +1,15 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { Sparkles } from "lucide-react";
+import { Sparkles, Heart, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { restaurants, type Restaurant } from "@/data/restaurants";
 import { RestaurantPicker } from "@/components/dineduel/RestaurantPicker";
 import { ComparisonCard } from "@/components/dineduel/ComparisonCard";
 import { SentimentRadar } from "@/components/dineduel/SentimentRadar";
 import { FilterSidebar } from "@/components/dineduel/FilterSidebar";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/duel")({
   head: () => ({
@@ -33,6 +36,27 @@ function DuelPage() {
   const [b, setB] = useState<Restaurant>(restaurants[1]);
   const [activeLocation, setActiveLocation] = useState<string | null>(null);
   const [priceMax, setPriceMax] = useState(2500);
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [saving, setSaving] = useState(false);
+
+  const saveDuel = async () => {
+    if (!user) {
+      toast.info("Sign in to save duels");
+      navigate({ to: "/auth" });
+      return;
+    }
+    setSaving(true);
+    const { error } = await supabase.from("saved_duels").insert({
+      user_id: user.id,
+      restaurant_a_id: a.id,
+      restaurant_b_id: b.id,
+      note: winnerName ? `${winnerName} wins by ${margin} pts` : `Tie at ${sa.toFixed(1)} pts`,
+    });
+    setSaving(false);
+    if (error) toast.error(error.message);
+    else toast.success("Duel saved!");
+  };
 
   const filtered = useMemo(
     () =>
@@ -95,8 +119,18 @@ function DuelPage() {
                 <span className="font-semibold">{verdict}</span>
               </span>
             </div>
-            <div className="text-xs text-muted-foreground">
-              Filtered pool: <span className="text-foreground font-semibold">{filtered.length}</span> restaurants
+            <div className="flex items-center gap-3">
+              <div className="text-xs text-muted-foreground">
+                Pool: <span className="text-foreground font-semibold">{filtered.length}</span>
+              </div>
+              <button
+                onClick={saveDuel}
+                disabled={saving}
+                className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold border border-primary/40 text-primary hover:bg-primary/10 disabled:opacity-50"
+              >
+                {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Heart className="h-3.5 w-3.5" />}
+                Save duel
+              </button>
             </div>
           </div>
 

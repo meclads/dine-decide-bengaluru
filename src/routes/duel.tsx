@@ -51,7 +51,7 @@ function DuelPage() {
       user_id: user.id,
       restaurant_a_id: a.id,
       restaurant_b_id: b.id,
-      note: winnerName ? `${winnerName} wins by ${margin} pts` : `Tie at ${sa.toFixed(1)} pts`,
+      note: winnerName ? `${winnerName} wins` : `Tie`,
     });
     setSaving(false);
     if (error) toast.error(error.message);
@@ -68,12 +68,25 @@ function DuelPage() {
 
   const sa = scoreBreakdown(a).total;
   const sb = scoreBreakdown(b).total;
-  const winner = Math.abs(sa - sb) < 0.05 ? null : sa > sb ? a.id : b.id;
+  // Winner is decided by star rating first (highest rating wins).
+  // Fall back to total score only if ratings are exactly tied.
+  const winner =
+    a.rate === b.rate
+      ? Math.abs(sa - sb) < 0.05
+        ? null
+        : sa > sb
+          ? a.id
+          : b.id
+      : a.rate > b.rate
+        ? a.id
+        : b.id;
   const winnerName = winner === a.id ? a.name : winner === b.id ? b.name : null;
-  const margin = Math.abs(sa - sb).toFixed(1);
+  const ratingMargin = Math.abs(a.rate - b.rate).toFixed(1);
   const verdict = winnerName
-    ? `${winnerName} wins by ${margin} pts (${sa.toFixed(1)} vs ${sb.toFixed(1)})`
-    : `It's a tie at ${sa.toFixed(1)} pts!`;
+    ? a.rate === b.rate
+      ? `${winnerName} edges it on overall score (${sa.toFixed(1)} vs ${sb.toFixed(1)})`
+      : `${winnerName} wins with ${Math.max(a.rate, b.rate)}★ (margin ${ratingMargin})`
+    : `It's a tie at ${a.rate}★`;
 
   return (
     <div className="container mx-auto max-w-7xl px-4 sm:px-6 py-10">

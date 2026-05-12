@@ -51,7 +51,7 @@ function DuelPage() {
       user_id: user.id,
       restaurant_a_id: a.id,
       restaurant_b_id: b.id,
-      note: winnerName ? `${winnerName} wins by ${margin} pts` : `Tie at ${sa.toFixed(1)} pts`,
+      note: winnerName ? `${winnerName} wins` : `Tie`,
     });
     setSaving(false);
     if (error) toast.error(error.message);

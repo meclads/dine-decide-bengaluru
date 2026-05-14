@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { Sparkles, Heart, Loader2 } from "lucide-react";
+import { Sparkles, Heart, Loader2, Star, Users, IndianRupee, Trophy } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { restaurants, type Restaurant } from "@/data/restaurants";
 import { RestaurantPicker } from "@/components/dineduel/RestaurantPicker";
@@ -88,6 +88,46 @@ function DuelPage() {
       : `${winnerName} wins with ${Math.max(a.rate, b.rate)}★ (margin ${ratingMargin})`
     : `It's a tie at ${a.rate}★`;
 
+  const winnerR = winner === a.id ? a : winner === b.id ? b : null;
+  const loserR = winnerR ? (winnerR.id === a.id ? b : a) : null;
+  const reasons = winnerR && loserR
+    ? [
+        {
+          icon: Star,
+          label: "Rating",
+          detail:
+            winnerR.rate > loserR.rate
+              ? `Higher star rating — ${winnerR.rate}★ vs ${loserR.rate}★ (+${(winnerR.rate - loserR.rate).toFixed(1)})`
+              : winnerR.rate === loserR.rate
+                ? `Tied on stars at ${winnerR.rate}★`
+                : `Lower stars (${winnerR.rate}★ vs ${loserR.rate}★) but made up elsewhere`,
+          win: winnerR.rate >= loserR.rate,
+        },
+        {
+          icon: Users,
+          label: "Popularity",
+          detail:
+            winnerR.votes > loserR.votes
+              ? `More diners voting — ${(winnerR.votes / 1000).toFixed(1)}k vs ${(loserR.votes / 1000).toFixed(1)}k reviews`
+              : winnerR.votes === loserR.votes
+                ? `Equally buzzed about (${(winnerR.votes / 1000).toFixed(1)}k reviews each)`
+                : `Smaller crowd (${(winnerR.votes / 1000).toFixed(1)}k vs ${(loserR.votes / 1000).toFixed(1)}k) but loyal fans`,
+          win: winnerR.votes >= loserR.votes,
+        },
+        {
+          icon: IndianRupee,
+          label: "Price",
+          detail:
+            winnerR.avg_cost < loserR.avg_cost
+              ? `Lighter on the wallet — ₹${winnerR.avg_cost} vs ₹${loserR.avg_cost} for two`
+              : winnerR.avg_cost === loserR.avg_cost
+                ? `Same ticket size at ₹${winnerR.avg_cost} for two`
+                : `Pricier (₹${winnerR.avg_cost} vs ₹${loserR.avg_cost}) but worth the spend`,
+          win: winnerR.avg_cost <= loserR.avg_cost,
+        },
+      ]
+    : [];
+
   return (
     <div className="container mx-auto max-w-7xl px-4 sm:px-6 py-10">
       <div className="max-w-3xl mb-8">
@@ -146,6 +186,39 @@ function DuelPage() {
               </button>
             </div>
           </div>
+
+          {winnerR && (
+            <div
+              className="glass rounded-2xl p-5"
+              style={{ borderColor: "color-mix(in oklch, oklch(0.85 0.17 85) 35%, transparent)" }}
+            >
+              <div className="flex items-center gap-2 mb-3">
+                <Trophy className="h-4 w-4" style={{ color: "oklch(0.85 0.17 85)" }} />
+                <h3 className="text-sm font-bold uppercase tracking-widest">
+                  Why {winnerR.name} won
+                </h3>
+              </div>
+              <ul className="grid sm:grid-cols-3 gap-3">
+                {reasons.map(({ icon: Icon, label, detail, win }) => (
+                  <li
+                    key={label}
+                    className="rounded-xl p-3 bg-muted/30 border border-border"
+                  >
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <Icon
+                        className="h-3.5 w-3.5"
+                        style={{ color: win ? "oklch(0.85 0.17 85)" : "var(--color-muted-foreground)" }}
+                      />
+                      <span className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">
+                        {label}
+                      </span>
+                    </div>
+                    <p className="text-xs leading-snug">{detail}</p>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           <section className="grid grid-cols-1 lg:grid-cols-2 gap-5">
             <AnimatePresence mode="popLayout">

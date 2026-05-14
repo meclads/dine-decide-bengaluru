@@ -31,6 +31,36 @@ function scoreBreakdown(r: Restaurant) {
   return { rating, sentiment, popularity, total: rating + sentiment + popularity };
 }
 
+function decideWinner(a: Restaurant, b: Restaurant) {
+  const sa = scoreBreakdown(a).total;
+  const sb = scoreBreakdown(b).total;
+
+  if (a.rate !== b.rate) {
+    return {
+      winnerId: a.rate > b.rate ? a.id : b.id,
+      scoreA: sa,
+      scoreB: sb,
+      reason: "rating" as const,
+    };
+  }
+
+  if (Math.abs(sa - sb) < 0.05) {
+    return {
+      winnerId: null,
+      scoreA: sa,
+      scoreB: sb,
+      reason: "tie" as const,
+    };
+  }
+
+  return {
+    winnerId: sa > sb ? a.id : b.id,
+    scoreA: sa,
+    scoreB: sb,
+    reason: "score" as const,
+  };
+}
+
 function DuelPage() {
   const [a, setA] = useState<Restaurant>(restaurants[0]);
   const [b, setB] = useState<Restaurant>(restaurants[1]);
@@ -66,24 +96,14 @@ function DuelPage() {
     [activeLocation, priceMax],
   );
 
-  const sa = scoreBreakdown(a).total;
-  const sb = scoreBreakdown(b).total;
-  // Winner is decided by star rating first (highest rating wins).
-  // Fall back to total score only if ratings are exactly tied.
-  const winner =
-    a.rate === b.rate
-      ? Math.abs(sa - sb) < 0.05
-        ? null
-        : sa > sb
-          ? a.id
-          : b.id
-      : a.rate > b.rate
-        ? a.id
-        : b.id;
+  const { winnerId: winner, scoreA: sa, scoreB: sb, reason: winnerReason } = useMemo(
+    () => decideWinner(a, b),
+    [a, b],
+  );
   const winnerName = winner === a.id ? a.name : winner === b.id ? b.name : null;
   const ratingMargin = Math.abs(a.rate - b.rate).toFixed(1);
   const verdict = winnerName
-    ? a.rate === b.rate
+    ? winnerReason === "score"
       ? `${winnerName} edges it on overall score (${sa.toFixed(1)} vs ${sb.toFixed(1)})`
       : `${winnerName} wins with ${Math.max(a.rate, b.rate)}★ (margin ${ratingMargin})`
     : `It's a tie at ${a.rate}★`;
